@@ -1,7 +1,3 @@
-SKILL & SKILL++ Best Practices
-Cadence SKILL/SKILL++ coding advice.
-
-
 # General Coding Advice
 
 The following advice are not specific to SKILL in particular, but I believe, it is always good to remind them.
