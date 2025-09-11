@@ -95,8 +95,8 @@ Do not reinvent the wheel.
 
 ### Write tests and specs before coding.
 
-If you know what to expect in most cases, you will get the big picture before you start coding.
-This will help you write clearer, simpler code and avoid rushing headfirst into a wall.
+If you know what to expect in most cases, you will get the big picture before you start coding.  
+This will help you write clearer, simpler code and avoid rushing headfirst into a wall.  
 It will also help debugging as the more you test, the less you break things and the easier you spot errors.
 
 
