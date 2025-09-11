@@ -29,6 +29,7 @@ Your future self (and your coworkers) will be thankful!
 > [!NOTE]
 > Useful information that users should know, even when skimming content.
 > SKILL is a high level language, most scripts are called by human interaction (GUI, click, ...).  
+> 
 > A few seconds, or even minutes sometimes, to run are often acceptable.  
 > So [always] prefer clarity over efficiency. (Effiency is often achieved while clarifying your code.)
 
