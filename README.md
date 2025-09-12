@@ -1,6 +1,6 @@
 # General Coding Advice
 
-The following advice are not specific to SKILL in particular, but I believe, it is always good to remind them.
+The following pieces of advice are not specific to SKILL in particular, but I believe, it is always good to remind them.
 
 
 ## Programming Mottos
@@ -60,7 +60,7 @@ If you don't, document it properly!
 
 ### Always be in control, no place for random.
 
-   Do not use global variables, it makes your code context dependent.  
+   Avoid global variables, it makes your code context dependent.  
    (At least prefix them, so they have less chances to be overwritten.)
 
 
@@ -80,7 +80,7 @@ If you don't, document it properly!
 
 > [!NOTE]
 > In Python, many modules are already there, and sometimes even open-source.  
-> In SKILL, the code is often kept secret by companies but there are many scripts available here:  
+> In SKILL, although most code is proprietary, many scripts are available here:  
 > - [Cadence Community - SKILL Forum](https://community.cadence.com/cadence_technology_forums/f/custom-ic-skill)  
 > - [Cadence Support](https://support.cadence.com)
 >
@@ -105,7 +105,7 @@ It will also help debugging as the more you test, the less you break things and 
 It should explain the arguments and the output. (Sometimes explain the purpose and detail the behavior.)
 
 
-# Basic SKILL/SKILL++ advice
+# Basic SKILL/SKILL++ Advice
 
 
 ### Lint your files.
@@ -143,3 +143,4 @@ For instance:
     ?buttonLayout 'Close
     ))
 ```
+
