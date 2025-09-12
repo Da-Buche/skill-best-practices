@@ -17,15 +17,15 @@ The following advice are not specific to SKILL in particular, but I believe, it 
 ### Write code to make it understandable by anyone.
 
 Your future self (and your coworkers) will be thankful!
-  
+
 > Programs must be written for people to read, and only incidentally for machines to execute.  
 > -- <cite>[Harold Abelson, Structure and Interpretation of Computer Programs, MIT][1]</cite>
 
-[1]: https://www.goodreads.com/quotes/9168-programs-must-be-written-for-people-to-read-and-only    
+[1]: https://www.goodreads.com/quotes/9168-programs-must-be-written-for-people-to-read-and-only
 
 > [!NOTE].
 > SKILL is a high level language, most scripts are called by human interaction (GUI, click, ...).
-> 
+>
 > A few seconds, or even minutes sometimes, to run are often acceptable.  
 > So [always] prefer clarity over efficiency. (Effiency is often achieved while clarifying your code.)
 
@@ -58,7 +58,7 @@ If you don't, document it properly!
 > Your way is probably not the best, or it hasn't been clearly explicited why it is the good solution!
 
 
-### Always be in control, no place for random
+### Always be in control, no place for random.
 
    Do not use global variables, it makes your code context dependent.  
    (At least prefix them, so they have less chances to be overwritten.)
@@ -69,7 +69,7 @@ If you don't, document it properly!
    If you have to develop a server to communicate with another language to use one or two features.  
    Make sure it is not simpler to implement what's missing.  
    Or that you cannot develop what you need directly in the other language.
-  
+
    At least, make sure your dependencies are well tested, well documented and well maintained.
 
 
