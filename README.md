@@ -264,3 +264,75 @@ The output will stay the same but it will run faster.
 > ```
 > </details>
 
+### Avoid nested `if` calls.
+
+Nested `if` calls are hard to understand. Ther are also complicated to maintain.  
+Here are a few solutions to avoid them:
+
+#### Use `cond`.
+
+`cond` is the default Lisp statement to group conditions.
+It is somewhat equivalent to `if ... elif ... else` in other languages.
+
+```scheme
+(defun fibonacci (n)
+  "Return the Nth Fibonacci number."
+  (if (zerop n)
+      0
+    (if (onep n)
+        1
+      (fibonnaci n-1)+(fibonnaci n-2)
+      ))
+  )
+  
+;; The nested `if`s can be replaced by a single `cond`
+(defun fibonacci (n)
+  "Return the Nth Fibonacci number."
+  (cond
+    ( (zerop n) 0                               )
+    ( (onep  n) 1                               )
+    ( t         (fibonnaci n-1)+(fibonnaci n-2) )
+    ))
+```
+
+
+#### Use `case` or `caseq`.
+
+When comparing the result of an expression to several values (as done just before), then `case` is more suitable.  
+It is somewhat equivalent to `switch` statements in other languages.
+
+```scheme
+(defun fibonacci (n)
+  "Return the Nth Fibonacci number."
+  (case n
+    ( 0 0                               )
+    ( 1 1                               )
+    ( t (fibonnaci n-1)+(fibonnaci n-2) )
+    ))
+
+;; It is also possible to group values which return the same output
+(defun fibonacci (n)
+  "Return the Nth Fibonacci number."
+  (case n
+    ( ( 0 1 ) n                               )
+    ( t       (fibonnaci n-1)+(fibonnaci n-2) )
+    ))
+```
+
+> [!TIP]
+>
+> If you want to check if the value is exactly `t` or a list.
+> You can use the following
+> ```scheme
+> (case variable
+>  ( ( ( 12 27 ) ) (info "variable is equal to '( 12 27 )\n" ) )
+>  ( ( t         ) (info "variable is exactly 't\n"          ) )
+>  ( t             (info "variable can be anything...\n"     ) )
+>  )
+> ```
+
+> [!INFO]
+>
+> `caseq` is similar to `case` but it uses `eq` instead of `equal` for the comparison.  
+> It is faster but only works when comparing value to symbols or integers.  
+> You can stick to `case` as it will work in all cases and the performance gain is often negligible.
