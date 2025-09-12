@@ -105,3 +105,41 @@ It will also help debugging as the more you test, the less you break things and 
 It should explain the arguments and the output. (Sometimes explain the purpose and detail the behavior.)
 
 
+# Basic SKILL/SKILL++ advice
+
+
+### Lint your files.
+
+Follow lint advices and try to get 100% score.  
+A high score is reassuring, it means the author made effort cleaning his code. 
+
+
+### Prefix unused variables with underscores.
+
+Prefixing a variable with '_' is the standard syntax to declare it unused.  
+It is usual to define functions that must accept unused arguments.
+
+> [!TIP]
+> Unused variables will decrease Lint score, unless they have '_' prefix.
+
+For instance:
+```scheme
+;; Display a simple form with a string field and a button.
+;; When the button is clicked, it prints the value of the string field.
+(hiDisplayForm
+  (hiCreateLayoutForm (gensym 'custom_form) "Custom Form"
+    (hiCreateFormLayout 'main_layout ?items (list
+        (hiCreateStringField 
+          ?name  'input_field
+          ?prompt "Input"
+          )
+        (hiCreateButton 
+          ?name       'print_button
+          ?buttonText "Print"
+          ;; Here the _field value has to be taken in account, but is never used...
+          ?callback   (lambda ( _field form ) (println form->input_field->value))
+          )
+        ))
+    ?buttonLayout 'Close
+    ))
+```
