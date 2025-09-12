@@ -226,32 +226,35 @@ The output will stay the same but it will run faster.
 >
 >   );let
 > ```
-<detaisl><summary>A better solution could be:</summary>
-But it does not use `exists` nor `setof` and
-one could argue that the previous code is more efficient.
-<pre class="highlight highlight-source-scheme brush: scheme">
-(let ( ( occurences_by_number (makeTable 'occurences 0) )
-       dividers
-       results
-       )
-  (for _ 0 99 (push (random 100) dividers))
-
-  ;; Count occurences of each number
-  (foreach number dividers
-    occurences_by_number[number]++
-    )
-
-  ;; Make sure zero is not present
-  (assert (zerop occurences_by_number[0]) "One of the dividers is zero: %N" dividers))
-
-  results = (foreach mapcar number dividers 1/number)
-  (println results)
-
-  ;; Print values with associated occurences
-  (foreach number occurences_by_number
-    (info "%d : %d\n" number occurences_by_number[number])
-    )
-
-  );let
-</pre></details>
+> <detaisl><summary>A better solution could be:</summary>
+>
+> But it does not use `exists` nor `setof` and
+> one could argue that the previous code is more efficient.
+> ```scheme
+> 
+> (let ( ( occurences_by_number (makeTable 'occurences 0) )
+>        dividers
+>        results
+>        )
+>   (for _ 0 99 (push (random 100) dividers))
+> 
+>   ;; Count occurences of each number
+>   (foreach number dividers
+>     occurences_by_number[number]++
+>     )
+> 
+>   ;; Make sure zero is not present
+>   (assert (zerop occurences_by_number[0]) "One of the dividers is zero: %N" dividers))
+> 
+>   results = (foreach mapcar number dividers 1/number)
+>   (println results)
+> 
+>   ;; Print values with associated occurences
+>   (foreach number occurences_by_number
+>     (info "%d : %d\n" number occurences_by_number[number])
+>     )
+> 
+>   );let
+> ```
+> </details>
 
