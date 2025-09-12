@@ -226,10 +226,10 @@ The output will stay the same but it will run faster.
 >
 >   );let
 > ```
-> <detaisl><summary>A better solution could be:</summary>
-> But it does not use `exists` nor `setof` and
-> one could argue that the previous code is more efficient.
-> <pre class="highlight highlight-source-scheme brush: scheme">
+<detaisl><summary>A better solution could be:</summary>
+But it does not use `exists` nor `setof` and
+one could argue that the previous code is more efficient.
+<pre class="highlight highlight-source-scheme brush: scheme">
 (let ( ( occurences_by_number (makeTable 'occurences 0) )
        dividers
        results
