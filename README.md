@@ -23,10 +23,10 @@ Your future self (and your coworkers) will be thankful!
 
 [1]: https://www.goodreads.com/quotes/9168-programs-must-be-written-for-people-to-read-and-only
 
-> [!NOTE].
+> [!NOTE]
 > SKILL is a high level language, most scripts are called by human interaction (GUI, click, ...).
 >
-> A few seconds, or even minutes sometimes, to run are often acceptable.  
+> A few seconds, sometimes even minutes, to run are often acceptable.  
 > So [always] prefer clarity over efficiency. (Effiency is often achieved while clarifying your code.)
 
 > [!WARNING]
@@ -76,10 +76,12 @@ If you don't, document it properly!
 ## Programming Methodology
 
 
-### Spend time checking what exists already before coding.
+### Check what exists already.
+
+Before coding in a rush, make sure there are no solutions available.
 
 > [!NOTE]
-> In Python, many modules are already there, and sometimes even open-source.  
+> In Python, the community is active and many open-soucre modules are already there.  
 > In SKILL, although most code is proprietary, many scripts are available here:  
 > - [Cadence Community - SKILL Forum](https://community.cadence.com/cadence_technology_forums/f/custom-ic-skill)  
 > - [Cadence Support](https://support.cadence.com)
@@ -88,9 +90,9 @@ If you don't, document it properly!
 > It contains many examples with code snippets, you can probably re-use directly or adapt!
 
 
-### Try to use standard functions as much as possible.  
+### Use standard functions.
 
-Do not reinvent the wheel.
+As much as possible, try to not reinvent the wheel.
 
 
 ### Write tests and specs before coding.
@@ -100,17 +102,26 @@ This will help you write clearer, simpler code and avoid rushing headfirst into 
 It will also help debugging as the more you test, the less you break things and the easier you spot errors.
 
 
-### If you write functions, the minimum requirement is to document them with docstrings.
+### Add docstrings to functions.
 
-It should explain the arguments and the output. (Sometimes explain the purpose and detail the behavior.)
+The minimum requirement is to list the arguments and the output.  
+It is also nice to explain the purpose and detail the behavior.
+
+Docstrings are better than regular comments as they are easier to manipulate,   
+when generating documentation, for instance.
 
 
 # Basic SKILL/SKILL++ Advice
 
 
+## Simple Improvements
+
+The following advice are low hanging fruits but can drastically improve code quality and robustness.
+
+
 ### Lint your files.
 
-Follow lint advices and try to get 100% score.  
+Follow lint recommendations and try to reach 100% score.  
 A high score is reassuring, it means the author made effort cleaning his code. 
 
 
