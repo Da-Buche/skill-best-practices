@@ -262,7 +262,33 @@ The output will stay the same but it will run faster.
 <summary>Title</summary>
 
 Text
-```code```
+
+> ```scheme
+> 
+> (let ( ( occurences_by_number (makeTable 'occurences 0) )
+>        dividers
+>        results
+>        )
+>   (for _ 0 99 (push (random 100) dividers))
+> 
+>   ;; Count occurences of each number
+>   (foreach number dividers
+>     occurences_by_number[number]++
+>     )
+> 
+>   ;; Make sure zero is not present
+>   (assert (zerop occurences_by_number[0]) "One of the dividers is zero: %N" dividers))
+> 
+>   results = (foreach mapcar number dividers 1/number)
+>   (println results)
+> 
+>   ;; Print values with associated occurences
+>   (foreach number occurences_by_number
+>     (info "%d : %d\n" number occurences_by_number[number])
+>     )
+> 
+>   );let
+> ```
 
 </details>
 
