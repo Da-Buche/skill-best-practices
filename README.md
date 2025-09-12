@@ -284,7 +284,7 @@ It is somewhat equivalent to `if ... elif ... else` in other languages.
       (fibonnaci n-1)+(fibonnaci n-2)
       ))
   )
-  
+
 ;; The nested `if`s can be replaced by a single `cond`
 (defun fibonacci (n)
   "Return the Nth Fibonacci number."
@@ -331,7 +331,7 @@ It is somewhat equivalent to `switch` statements in other languages.
 >  )
 > ```
 
-> [!INFO]
+> [!NOTE]
 >
 > `caseq` is similar to `case` but it uses `eq` instead of `equal` for the comparison.  
 > It is faster but only works when comparing value to symbols or integers.  
