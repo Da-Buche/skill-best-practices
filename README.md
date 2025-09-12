@@ -32,7 +32,7 @@ Your future self (and your coworkers) will be thankful!
 
 > [!WARNING]
 > Still, avoid square or exponential complexities...  
-> If you don't know what complexity is, you should probably learn about it before coding more...  
+> If you are unaware about complexity, you should learn the following before coding more...  
 > [Wikipedia: Computational complexity](https://en.wikipedia.org/wiki/Computational_complexity)
 
 
@@ -50,9 +50,9 @@ Or even better, write docstrings inside the code.
 Avoid external mapping files.
 
 
-### Try to follow common practices.
+### Follow common practices.
 
-If you don't, document it properly!
+If you write specific, tricky or weird code, document it properly!
 
 > [!WARNING]
 >
@@ -62,17 +62,17 @@ If you don't, document it properly!
 
 ### Always be in control, no place for random.
 
-   Avoid global variables, it makes your code context dependent.  
-   (At least prefix them, so they have less chances to be overwritten.)
+Avoid global variables, it makes your code context dependent.  
+(At least prefix them, so they have less chances to be overwritten.)
 
 
 ### Avoid dependencies (when reasonable).
 
-   If you have to develop a server to communicate with another language to use one or two features.  
-   Make sure it is not simpler to implement what's missing.  
-   Or that you cannot develop what you need directly in the other language.
+If you have to develop a server to communicate with another language to use one or two features.  
+Make sure it is not simpler to implement what's missing.  
+Or that you cannot develop what you need directly in the other language.
 
-   At least, make sure your dependencies are well tested, well documented and well maintained.
+At least, make sure your dependencies are well tested, well documented and well maintained.
 
 
 ## Programming Methodology
@@ -125,7 +125,9 @@ The following advice are low hanging fruits but can drastically improve code qua
 ### Lint your files.
 
 Follow lint recommendations and try to reach 100% score.  
-A high score is reassuring, it means the author made effort cleaning his code. 
+A high score is reassuring, it means the author made effort cleaning his code.
+
+It often avoids bugs and errors even before running the code.
 
 
 ### Prefix unused variables with underscores.
@@ -160,7 +162,7 @@ For instance:
 ```
 
 
-### Use (car (exists ...)) instead of (car (setof ...))
+### Use `(car (exists ...))` instead of `(car (setof ...))`
 
 I have seen this one many times, SKILL developers love `setof`... Of course, it is super useful.  
 But if you only need the first element of a filtered list, then you probably don't need to parse it entirely.
@@ -185,7 +187,7 @@ The output will stay the same but it will run faster.
   (when (car (exists number dividers (zerop number)))
     (error "One of the dividers is zero: %N" dividers))
 
-  results = (foreach mapcar number dividers 1/number)
+  results = (foreach mapcar number dividers 1.0/number)
   (println results)
 
   ;; The worst-case complexity is still identical, if there are no zero in dividers
@@ -217,7 +219,7 @@ The output will stay the same but it will run faster.
 >                (progn occurences_by_number[number]++ (zerop number))))
 >     (error "One of the dividers is zero: %N" dividers))
 >
->   results = (foreach mapcar number dividers 1/number)
+>   results = (foreach mapcar number dividers 1.0/number)
 >   (println results)
 >
 >   ;; Print values with associated occurences
@@ -229,13 +231,12 @@ The output will stay the same but it will run faster.
 > ```
 >
 > <details>
-> <summary>A better solution could be:</summary>
+> <summary>A clearer solution could be:</summary>
 > 
 > But it does not use `exists` nor `setof` and
 > one could argue that the previous code is more efficient.
 > 
 > ```scheme
-> 
 > (let ( ( occurences_by_number (makeTable 'occurences 0) )
 >        dividers
 >        results
@@ -251,7 +252,7 @@ The output will stay the same but it will run faster.
 >   (assert (zerop occurences_by_number[0]) 
 >     "One of the dividers is zero: %N" dividers)
 > 
->   results = (foreach mapcar number dividers 1/number)
+>   results = (foreach mapcar number dividers 1.0/number)
 >   (println results)
 > 
 >   ;; Print values with associated occurences
