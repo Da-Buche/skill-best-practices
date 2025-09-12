@@ -258,3 +258,9 @@ The output will stay the same but it will run faster.
 > ```
 > </details>
 
+<details>
+<summary>Title</summary>
+
+Text
+</details>
+
