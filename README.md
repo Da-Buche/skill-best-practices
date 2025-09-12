@@ -24,6 +24,7 @@ Your future self (and your coworkers) will be thankful!
 [1]: https://www.goodreads.com/quotes/9168-programs-must-be-written-for-people-to-read-and-only
 
 > [!NOTE]
+>
 > SKILL is a high level language, most scripts are called by human interaction (GUI, click, ...).
 >
 > A few seconds, sometimes even minutes, to run are often acceptable.  
@@ -54,6 +55,7 @@ Avoid external mapping files.
 If you don't, document it properly!
 
 > [!WARNING]
+>
 > If every other developer is having a hard time understanding your code.  
 > Your way is probably not the best, or it hasn't been clearly explicited why it is the good solution!
 
@@ -81,6 +83,7 @@ If you don't, document it properly!
 Before coding in a rush, make sure there are no solutions available.
 
 > [!NOTE]
+> 
 > In Python, the community is active and many open-soucre modules are already there.  
 > In SKILL, although most code is proprietary, many scripts are available here:  
 > - [Cadence Community - SKILL Forum](https://community.cadence.com/cadence_technology_forums/f/custom-ic-skill)  
@@ -128,9 +131,10 @@ A high score is reassuring, it means the author made effort cleaning his code.
 ### Prefix unused variables with underscores.
 
 Prefixing a variable with '_' is the standard syntax to declare it unused.  
-It is usual to define functions that must accept unused arguments.
+It is common to define functions that must accept unused arguments.
 
 > [!TIP]
+> 
 > Unused variables will decrease Lint score, unless they have '_' prefix.
 
 For instance:
@@ -222,3 +226,34 @@ The output will stay the same but it will run faster.
 >
 >   );let
 > ```
+> <detaisl><summary>A better solution could be:</summary>
+> But it does not use `exists` nor `setof` and
+> one could argue that the previous code is more efficient.
+> ```scheme
+> 
+> (let ( ( occurences_by_number (makeTable 'occurences 0) )
+>        dividers
+>        results
+>        )
+>   (for _ 0 99 (push (random 100) dividers))
+> 
+>   ;; Count occurences of each number
+>   (foreach number dividers
+>     occurences_by_number[number]++
+>     )
+> 
+>   ;; Make sure zero is not present
+>   (assert (zerop occurences_by_number[0]) "One of the dividers is zero: %N" dividers))
+> 
+>   results = (foreach mapcar number dividers 1/number)
+>   (println results)
+> 
+>   ;; Print values with associated occurences
+>   (foreach number occurences_by_number
+>     (info "%d : %d\n" number occurences_by_number[number])
+>     )
+> 
+>   );let
+> ```
+> </details>
+
