@@ -213,7 +213,8 @@ The output will stay the same but it will run faster.
 >
 >   ;; Here we cannot replace `setof` by `exists`
 >   ;; Otherwise the occurences count will be wrong as soon as zero is encountered
->   (when (car (setof number dividers (progn occurences_by_number[number]++ (zerop number))))
+>   (when (car (setof number dividers
+>                (progn occurences_by_number[number]++ (zerop number))))
 >     (error "One of the dividers is zero: %N" dividers))
 >
 >   results = (foreach mapcar number dividers 1/number)
@@ -226,37 +227,6 @@ The output will stay the same but it will run faster.
 >
 >   );let
 > ```
-> <detaisl><summary>A better solution could be:</summary>
-
-> ```scheme
-> 
-> (let ( ( occurences_by_number (makeTable 'occurences 0) )
->        dividers
->        results
->        )
->   (for _ 0 99 (push (random 100) dividers))
-> 
->   ;; Count occurences of each number
->   (foreach number dividers
->     occurences_by_number[number]++
->     )
-> 
->   ;; Make sure zero is not present
->   (assert (zerop occurences_by_number[0]) "One of the dividers is zero: %N" dividers))
-> 
->   results = (foreach mapcar number dividers 1/number)
->   (println results)
-> 
->   ;; Print values with associated occurences
->   (foreach number occurences_by_number
->     (info "%d : %d\n" number occurences_by_number[number])
->     )
-> 
->   );let
-> ```
-> </details>
-
-> [!CAUTION]
 >
 > <details>
 > <summary>A better solution could be:</summary>
@@ -278,7 +248,8 @@ The output will stay the same but it will run faster.
 >     )
 > 
 >   ;; Make sure zero is not present
->   (assert (zerop occurences_by_number[0]) "One of the dividers is zero: %N" dividers))
+>   (assert (zerop occurences_by_number[0]) 
+>     "One of the dividers is zero: %N" dividers)
 > 
 >   results = (foreach mapcar number dividers 1/number)
 >   (println results)
@@ -290,6 +261,5 @@ The output will stay the same but it will run faster.
 > 
 >   );let
 > ```
-> 
 > </details>
 
