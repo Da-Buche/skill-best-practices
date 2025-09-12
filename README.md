@@ -155,3 +155,70 @@ For instance:
     ))
 ```
 
+
+### Use (car (exists ...)) instead of (car (setof ...))
+
+I have seen this one many times, SKILL developers love `setof`... Of course, it is super useful.  
+But if you only need the first element of a filtered list, then you probably don't need to parse it entirely.
+
+In 99% cases, you can blindlessly replace `(car (setof ...))` by `(car (exists ...))`.  
+The output will stay the same but it will run faster.
+
+```scheme
+;; Generate a list of random values, just for the sake of this example
+(let ( dividers
+       results
+       )
+  (for _ 0 99 (push (random 100) dividers))
+
+  ;; Here we browse all dividers and keep only the ones that are zero
+  ;; Then we take the first one of those zeros
+  (when (car (setof number dividers (zerop number)))
+    (error "One of the dividers is zero: %N" dividers))
+
+  ;; The following will give the same result
+  ;; But it stops as soon as one divider equal to zero is found
+  (when (car (exists number dividers (zerop number)))
+    (error "One of the dividers is zero: %N" dividers))
+
+  results = (foreach mapcar number dividers 1/number)
+  (println results)
+
+  ;; The worst-case complexity is still identical, if there are no zero in dividers
+  ;; the list will be browsed entirely in both cases.
+  ;; But the average complexity is way improved for `exists`.
+
+  );let
+```
+
+> [!CAUTION]
+>
+> The 1% cases where this is not valid are the cases where the loop contains destructive (or constructive) code.  
+> i. e. when operations inside `setof` modify the environment.
+>
+> This is not a good practice though.
+>
+> ```scheme
+> ;; Let's re-use the previous example
+> ;; But this time we also want to count the occurences of each generated number
+> (let ( ( occurences_by_number (makeTable 'occurences 0) )
+>        dividers
+>        results
+>        )
+>   (for _ 0 99 (push (random 100) dividers))
+>
+>   ;; Here we cannot replace `setof` by `exists`
+>   ;; Otherwise the occurences count will be wrong as soon as zero is encountered
+>   (when (car (setof number dividers (progn occurences_by_number[number]++ (zerop number))))
+>     (error "One of the dividers is zero: %N" dividers))
+>
+>   results = (foreach mapcar number dividers 1/number)
+>   (println results)
+>
+>   ;; Print values with associated occurences
+>   (foreach number occurences_by_number
+>     (info "%d : %d\n" number occurences_by_number[number])
+>     )
+>
+>   );let
+> ```
