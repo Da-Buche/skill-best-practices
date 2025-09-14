@@ -41,6 +41,22 @@ Your future self (and your coworkers) will be thankful!
 Avoid defining global things with constructed names. If you do so, document it very clearly.  
 When debugging or discovering new code, it is very disturbing not being able to `grep` what you are looking for.
 
+> [!CAUTION]
+>
+> Here is a bad SKILL example of "smart" (or dynamic) definitions.
+> ```scheme
+> ;; Define predicates to check if objects are simple geometric shapes.
+> (foreach obj_type '( "rect" "polygon" "ellipse" )
+>   (funcall 'defun (concat 'is_ obj_type ?) '( obj )
+>     (lsprintf  "Check if OBJ is a %s" obj_type)
+>     `(eq ,obj_type obj->objType)
+>     ))
+> ```
+> This might confuse most developers that will have a hard time looking where `is_rect?` is defined.
+
+So use explicit definitions. Choose explicit functions and variables names.
+Write explicit error messages. Anyone reading and debugging your code will be thankful. 
+
 
 ### Keep things together.
 
@@ -336,3 +352,86 @@ It is somewhat equivalent to `switch` statements in other languages.
 > `caseq` is similar to `case` but it uses `eq` instead of `equal` for the comparison.  
 > It is faster but only works when comparing value to symbols or integers.  
 > You can stick to `case` as it will work in all cases and the performance gain is often negligible.
+
+
+#### Use `error` or `assert`.
+
+In many cases, raising errors is the proper things to do.  
+It avoids nesting statements as it exits the current stack.
+
+One common use-case, is to check arguments:
+
+```scheme
+(defun box_width ( box )
+  "Return BOX width."
+  (if (isBBox box)
+      (rightEdge box)-(leftEdge box)
+      ))
+
+;; The previous function does not guarantee that the output would be a valid number.
+;; If anything else than a box is passed as argument, it will return nil.
+;; It is cleaner to raise a meaningful error message as soon as the erratic input is found.
+(defun box_width ( box )
+  "Return BOX width."
+  (unless (isBBox box) (error "box_width - input is not a valid bounding box: %N" box))
+  (rightEdge box)-(leftEdge box)
+  )
+```
+
+> [!NOTE]
+>
+> ```scheme
+> (unless <predicate> (error <msg> <msg_inputs...>))
+> ;; This is completely equivalent to:
+> (assert <predicate> <msg> <msg_inputs...>)
+> ```
+
+
+#### Use `prog`.
+
+`prog` disrupts with Lisp mindset but it remains a very useful statement.  
+Like `error` it allows to exit the current stack thanks to `return` calls.  
+It might be useful to raise warnings instead of errors.
+
+
+> [!CAUTION]
+>
+> I do not advise to use `go` statements inside `prog`.
+> It is often cleaner to write dedicated functions.
+
+
+#### Use `or` and `and`.
+
+Boolean operatons might be useful to group several conditions:
+
+```scheme 
+(when (and (stringp obj)
+           (not (blankstrp obj))
+           )
+  (info "obj is a non-blank string!: %N\n" obj)
+  )
+```
+
+
+#### Use advanced predicates.
+
+There are many available predicates. Knowing them can avoid grouping conditions.
+Here are some examples of useful native predicates:
+
+| Predicate   | Description                                   |
+|-------------|-----------------------------------------------|
+| `dplp`      |  Object is a Disembodied Property List [DPL]. |
+| `blankstrp` |  String is empty or contains only whitespace. |
+| `isBBox`    |  Object is a bounding box.                    |
+| `atom`      |  Object is an atom (i.e. nil or not a list).  |
+
+Write your own predicates, if you are often repeating the same checks:
+
+```scheme
+(defun nonblankstring? (obj)
+  "Return t if OBJ is a non-blank string.
+Meaning a string that contains at least one character which is not whitespace."
+  (and (stringp obj)
+       (not (blankstrp obj))
+       ))
+```
