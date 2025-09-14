@@ -46,7 +46,7 @@ When debugging or discovering new code, it is very disturbing not being able to 
 > Here is a bad SKILL example of "smart" (or dynamic) definitions.
 > ```scheme
 > ;; Define predicates to check if objects are simple geometric shapes.
-> (foreach obj_type '( "rect" "polygon" "ellipse" )
+> (foreach obj_type '( rect polygon ellipse )
 >   (funcall 'defun (concat 'is_ obj_type ?) '( obj )
 >     (lsprintf  "Check if OBJ is a %s" obj_type)
 >     `(eq ,obj_type obj->objType)
@@ -434,4 +434,28 @@ Meaning a string that contains at least one character which is not whitespace."
   (and (stringp obj)
        (not (blankstrp obj))
        ))
+```
+
+
+### Use `(printf "%s" str)` instead of `(printf str)`
+
+When using most printing functions (`lsprintf`, `printf`, `fprintf`, `info`, `warn`,
+`error`, ...), avoid using a variable as first argument.  (This is even more true
+when you are unaware of the variable content. It can be the result of a command, the
+text of a file or a user input.)
+
+```scheme
+;; The following will break
+(foreach str '( "This is a dummy example string\n"
+                "Another one but with a percentage sign %\n"
+                )
+  (info str)
+  )
+
+;; This is much safer
+(foreach str '( "This is a dummy example string\n"
+                "Another one but with a percentage sign %\n"
+                )
+  (info "%s" str)
+  )
 ```
