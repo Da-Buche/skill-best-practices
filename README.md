@@ -437,7 +437,7 @@ Meaning a string that contains at least one character which is not whitespace."
 ```
 
 
-### Use `(printf "%s" str)` instead of `(printf str)`
+#### Use `(printf "%s" str)` instead of `(printf str)`
 
 When using most printing functions (`lsprintf`, `printf`, `fprintf`, `info`, `warn`,
 `error`, ...), avoid using a variable as first argument.  (This is even more true
@@ -528,4 +528,65 @@ text of a file or a user input.)
 
 Layout forms are very flexible, you just need to know the right [functions](#layout-form-functions)
 
+
+## Useful functions, macros & syntax forms
+
+Here are some useful statements that are worth knowing while coding in SKILL or SKILL++.
+
+
+### Type conversion
+
+| Function    | Description                                                            |
+|-------------|------------------------------------------------------------------------|
+| `concat`    | Concatenate any number of strings, symbols and integers into a symbol. |
+| `strcat`    | Concatenate any number of symbols and strings into a string.           |
+| `atoi`      | Convert a string into an integer.                                      |
+| `atof`      | Convert a string into a floating-point number.                         |
+
+> [!TIP] 
+> 
+> `concat` & `strcat` can also be used to simply convert a string into a symbol or a symbol into a string.  
+> They are faster to type and to execute than `stringToSymbol` & `symbolToString`.
+> So you can forget about those two last ones.
+
+
+### List splitting
+
+I know combinations of `car` and `cdr` are very Lispy, but they are often hard to read.
+You can often use `nth` and `nthcdr` which are easier to read.
+Or even better, use `destructuringBind`.
+
+> [!WARNING]
+> 
+> ```scheme
+> ;; Bad example of how to split a bounding box into coordinates
+> (letseq ( ( cellview (geGetEditCellView) )
+>           ( box      cellview->bBox      )
+>           ( x0       (caar   box)        )
+>           ( y0       (cadar  box)        )
+>           ( x1       (caadr  box)        )
+>           ( y1       (cadadr box)        )
+>           )
+>   ...
+>   )
+> 
+> ;; Better solution but it can still be improved
+> (letseq ( ( cellview (geGetEditCellView) )
+>           ( box      cellview->bBox      )
+>           ( x0       (leftEdge   box)    )
+>           ( y0       (bottomEdge box)    )
+>           ( x1       (rightEdge  box)    )
+>           ( y1       (topEdge    box)    )
+>           )
+>   ...
+>   )
+> ```
+> [!TIP]
+>
+> It is much cleaner using `destructuringBind`:
+> ```scheme
+> (destructuringBind ( ( x0 y0 ) ( x1 y1 ) ) (geGetEditCellView)->bBox
+>   ...
+>   )
+> ```
 
