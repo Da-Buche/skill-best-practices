@@ -580,6 +580,51 @@ Here are some useful statements that are worth knowing while coding in SKILL or 
 > So you can forget about those two last ones.
 
 
+### Formatting
+
+Formatting functions behave like Unix `printf` utility:
+- `lsprintf`
+- `printf`
+- `fprintf`
+- `info`
+- `warn`
+- `error`
+- `sprintf`
+
+It is possible to padd printed values using a minimum number of characters to the right or left.  
+It is also possible to specify the number of decimals when printing a floating-point number.
+
+
+
+> [!TIP]
+>
+> Here is an example of advanced printing:
+```scheme
+
+(defun padd ( str padd_num "Sx")
+  "Return STR left-padded with spaces so its minimum length is PADD_NUM."
+  (lsprintf (lsprintf "%%%ds" padd_num) str)
+  )
+
+(let ( ( constants_tuples '( ( pi                "π"  3.14159 )
+                             ( "Euler's Number"  "e"  2.71828 )
+                             ( phi               "φ"  1.61803 )
+                             ( "2's square root" "√2" 1.41421 )
+                             ) )
+       ( max_len          0    )
+       )
+  ;; Calculate maximum name length
+  (foreach tuple constants_tuples (setq max_len (max max_len (length (strcat (car tuple))))))
+
+  ;; Print formatted constants
+  (foreach tuple constants_tuples
+    (destructuringBind ( name symbol value ) tuple
+      (info "%s %-4s %8.4f\n" (padd name max_len) symbol value)
+      ))
+  )
+```
+
+
 ### List splitting
 
 I know combinations of `car` and `cdr` are very Lispy, but they are often hard to read.
