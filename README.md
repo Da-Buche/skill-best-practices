@@ -1068,6 +1068,13 @@ But it will also subtly break unexpected functions like `pcreSubstitute` or `sim
 >   )
 > ```
 
+### Debugging Advice
+
+Regarding all other errors, reading the following article is strongly advised:  
+[Debugging Virtuoso Session – Basic Tips and Frequently Asked Questions](https://support.cadence.com/apex/ArticleAttachmentPortal?id=a1O3w00000ADyHYEA1&pageName=ArticleContent)
+
+Any CAD engineer supporting Virtuoso should be familiar with it.
+
 
 # Advanced SKILL & SKILL++
 
