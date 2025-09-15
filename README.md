@@ -581,6 +581,7 @@ Or even better, use `destructuringBind`.
 >   ...
 >   )
 > ```
+
 > [!TIP]
 >
 > It is much cleaner using `destructuringBind`:
