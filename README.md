@@ -459,3 +459,73 @@ text of a file or a user input.)
   (info "%s" str)
   )
 ```
+
+
+### Construct Graphical User Interfaces [GUIs] with layout forms
+
+> [!WARNING]
+>
+> Forms with hardcoded coordinates are hard to modify and maintain.
+> ```scheme
+> (defun create_custom_form ()
+>   "Create and return an example form."
+>   (hiCreateAppForm
+>     ?name      (gensym 'custom_form)
+>     ?formTitle "Example Form"
+>     ?fields
+>     (list
+>       ;; String
+>       (list
+>         (hiCreateStringField
+>           ?name   'string_field
+>           ?prompt "string"
+>           )
+>         0:0 300:30 100
+>         )
+>       ;; Combo
+>       (list
+>         (hiCreateComboField
+>           ?name   'combo_field
+>           ?prompt "combo"
+>           ?items '( "Choice A" "Choice B" "Other" )
+>           )
+>         0:30 300:30 100
+>         )
+>       ));list ;hiCreateAppForm
+>   );defun
+> 
+> (hiDisplayForm (create_custom_form))
+> ```
+
+> [!TIP]
+>
+> Creating a similar form using layouts is simpler.  
+> The coordinates are calculated automatically.  
+> The form will be more responsive (it will adapt when resized, etc.).
+> ```scheme
+> (defun create_custom_form ()
+>   "Create and return an example form."
+>   (hiCreateLayoutForm (gensym 'custom_form) "Example Form"
+>     (hiCreateFormLayout 'main_layout
+>       ?items
+>       (list
+>         ;; String
+>         (hiCreateStringField
+>           ?name   'string_field
+>           ?prompt "string"
+>           )
+>         ;; Combo
+>         (hiCreateComboField
+>           ?name   'combo_field
+>           ?prompt "combo"
+>           ?items '( "Choice A" "Choice B" "Other" )
+>           )
+>         ));list ;hiCreateFormLayout
+>     ));hiCreateLayoutForm ;defun
+> 
+> (hiDisplayForm (create_custom_form))
+> ```
+
+Layout forms are very flexible, you just need to know the right [functions](#layout-form-functions)
+
+
