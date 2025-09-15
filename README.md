@@ -1194,3 +1194,88 @@ Those mappings can be used within foreach thanks to the following *unfamiliar* s
 > ```
 
 
+## Use `@key` and `@rest` arguments
+
+If you want your code to be easier to maintain in the future.  
+You should define [almost] all your global functions using only `@key` and `@rest` arguments.
+
+If you need to introduce another argument afterwards, or take in account one that you might support,  
+you will be thankful to have used `@key` and `@rest` arguments.
+
+## Use `_backquote` ``` ` ```
+
+`_backquote` is a macro used to simplify the creation of lists where some elements
+are evaluated but others are not.
+
+`_backquote` or (``` ` ```) works like `quote` (or `'`), except that you can use `_comma` (or `,`) 
+and `_commaAt` (or `,@`) to evaluate certain parts.
+
+```scheme
+;; Here is a dummy example to show how `_backquote` can be used to build a DPL.
+(defun build_dpl ( a b @rest args )
+  "Build and return a DPL containing A, B and ARGS."
+  `( nil
+     a    ,a
+     b    ,b
+     a_b  ( ,a ,b )
+     args ,@args
+     ))
+     
+;; It is equivalent to nested calls of `list`, `quote` and `constar`.
+(defun build_dpl ( a b @rest args )
+  (constar nil 
+    'a   a 
+    'b   b 
+    'a_b (list a b) 
+    'args args
+    ))
+```
+
+`_backquote` ``` ` ``` is very useful to [Define macros](#define-macros).
+
+
+## Define macros
+
+Macros have a steep learning curve but they are extremely useful if you want to
+manipulate unevaluated code or improve the syntax of statements.  It the proper way
+to address design patterns.
+
+### `wrap` example
+
+For instance, `unwindProtect` styntax is heavy and prone to error.  
+This is due to the closing form being placed at the end of the statement.
+
+Here is a different approach where the opening and closing statements are grouped together.  
+(It is inspired by Python's `with` context manager.)
+
+```scheme
+(defmacro wrap ( in out @rest body )
+  "Wrapper to group IN and OUT statements inside `unwindProtect`."
+  `(unwindProtect (progn ,in ,@body) ,out)
+  )
+```
+
+Thanks to `wrap` redefine an improved `split_email` 
+(the one, which was created in [`rexMagic` is a vey nasty switch](#rexmagic-is-a-vey-nasty-switch)) :
+
+```scheme
+(defun split_email ( email )
+  "Split EMAIL string into first name, last name and website.
+Return nil when EMAIL cannot be parsed properly."
+  ;; Properly set and re-set `rexMagic`
+  (let ( ( magic (rexMagic) )
+         )
+    (wrap (rexMagic t    )
+          (rexMagic magic)
+      ;; Inside `wrap` we guarantee `rexMagic` value
+      (when (pcreMatchp "([^.@]+)\\.?(.*?)@(.+)" email)
+        (mapcar 'pcreSubstitute '( "\\1" "\\2" "\\3" ))
+        ))
+    ))
+```
+
+### Use `expandMacro' and `expandMacroDeep' to test your macros
+
+When writing macros, or testing some code, `expandMacro` and `expandMacroDeep` are
+very useful to understand what is going on under the hood.
+
