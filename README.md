@@ -563,12 +563,15 @@ Here are some useful statements that are worth knowing while coding in SKILL or 
 
 ### Type conversion
 
-| Function    | Description                                                            |
-|-------------|------------------------------------------------------------------------|
-| `concat`    | Concatenate any number of strings, symbols and integers into a symbol. |
-| `strcat`    | Concatenate any number of symbols and strings into a string.           |
-| `atoi`      | Convert a string into an integer.                                      |
-| `atof`      | Convert a string into a floating-point number.                         |
+| Function            | Description                                                                                                       |
+|---------------------|-------------------------------------------------------------------------------------------------------------------|
+| `concat`            | Concatenate any number of strings, symbols and integers into a symbol.                                            |
+| `strcat`            | Concatenate any number of symbols and strings into a string.                                                      |
+| `atoi`              | Convert a string into an integer.                                                                                 |
+| `atof`              | Convert a string into a floating-point number.                                                                    |
+| `aelNumber`         | Convert an integer, a floating-point number or a string into a number. It supports scientifc or metric notations. |
+| `aelEngNotation`    | Convert a number into a string using engineering notation.                                                        |
+| `aelSuffixNotation` | Convert a number into a string using metric suffix notation.                                                      |
 
 > [!TIP] 
 > 
