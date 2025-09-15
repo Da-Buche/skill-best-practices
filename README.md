@@ -461,6 +461,33 @@ text of a file or a user input.)
 ```
 
 
+#### Shape data before comparison and report unsupported cases
+
+Instead of writing advanced conditions for many possible values.
+Shape your data so it can only ends in a few different baskets.
+
+```scheme
+;; Let's assume that you have a function `(read_user_input)` which can return verbosity levels
+;; like "Verbose" "debug" or "None". Here is a small example to exploit it properly:
+(let ( ( verbosity (read_user_input) )
+       )
+  (case (lowerCase )
+    ( "verbose"
+      ...
+      )
+    ( "debug"
+      ...
+      )
+    ( "none"
+      ...
+      )
+    ;; Important, when case is not supported, raise a meaningful error!
+    ( t
+      (error "Verbose level should be \"vebose\", \"debug\" or \"none\": %N\n" verbosity)
+      )
+    ))
+```
+
 ### Construct Graphical User Interfaces [GUIs] with layout forms
 
 > [!WARNING]
