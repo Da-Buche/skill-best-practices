@@ -806,6 +806,37 @@ It works like Unix `realpath` (or `readlink -f`).
 
 ### Geometry
 
+
+#### Use `nearlyEqual`
+
+> [!WARNING]
+>
+> When working with floating-point numbers, which happens often when working in Layout or when calculating geometrical values.
+> You cannot properly rely on equal:
+> 
+> ```scheme
+> (let ( ( num 0.0 )
+>        )
+>   (for _ 1 1000000
+>     num += 0.0000001
+>     )
+> 
+>   (printf " num: %N\n (equal 0.1 num): %N\n (nearlyEqual 0.1 num): %N\n"
+>     num (equal 0.1 num) (nearlyEqual 0.1 num))
+>   ; > num: 0.1
+>   ; > (equal 0.1 num): nil
+>   ; > (nearlyEqual 0.1 num): t
+>   )
+> ```
+> Even if `num` value is represented as `0.1`, its actual value is extremely close, but still slightly different.
+
+> [!TIP]
+>
+> When working with floating-point numbers `nearlyEqual` is often the right function to compare numbers.
+
+
+#### Use `complex` numbers
+
 When working on geometrical functions, use `complex` numbers.
 They easily solve most problems regarding angles.
 
