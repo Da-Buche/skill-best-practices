@@ -630,8 +630,8 @@ The following functions are very useful to apply a predicate to list elements:
 
 ### Setting anything
 
-"setters" and "getters" are very common. 
-They are functions to access and manage properties.
+"setters" and "getters" are very common.  
+They are functions to access and manage properties.  
 However their syntax can be confusing, for instance:
 ```scheme
 ;; Set property 'a to 12 in a DPL
@@ -719,3 +719,294 @@ It can also be used to reset the height of a layer field created with `leCreateL
 > [!TIP]
 >
 > You can use `(hiDisplayForm custom_form -1:-1)` to display a form under the mouse.
+
+
+### Regular expressions
+
+If you are unaware about regular expressions.
+You should definitely have a look at the following resources:
+
+| Site                                             | Description                                                 |
+|--------------------------------------------------|-------------------------------------------------------------|
+| [Regex One](https://regexone.com/)               | Interactive courses to learn regular expressions from zero. |
+| [Regular Expressions 101](https://regex101.com)  | Test and explain regular expressions interactively.         |
+
+In SKILL, instead of `rex...` functions, I advise using `pcre...` ones.  
+They are following [Perl Compatible Regular Expressions \[PCRE\]](https://www.pcre.org) standards.
+
+- `pcreCompile`
+- `pcreMatchp`
+- `pcreReplace`
+- `pcreSubstitute`
+- `pcreGenCompileOptBits`
+
+
+### Comparison of strings containing numbers
+
+`alphalessp` is limited when comparing strings with numbers.
+This is not the case of its lesser known cousin `alphaNumCmp`
+which compares numbers inside strings in a "natural" way:
+
+```scheme
+(let ( ( file_names '( "video_0.mp4"
+                       "video_12.mp4"
+                       "video_27.mp4"
+                       "video_10.mp4"
+                       "video_1.mp4"
+                       "video_111.mp4"
+                       ) )
+       )
+  (println (sort (copy file_names) 'alphalessp))
+  ;; > ("video_0.mp4" "video_1.mp4" "video_10.mp4" "video_111.mp4" "video_12.mp4" "video_27.mp4")
+  
+  (println (sort (copy file_names) (lambda ( str0 str1 ) (negativep (alphaNumCmp str0 str1)))))
+  ;; > ("video_0.mp4" "video_1.mp4" "video_10.mp4" "video_12.mp4" "video_27.mp4" "video_111.mp4")
+  )
+```
+
+
+### Resolving shell variables and symlinks in paths
+
+Instead of playing with `getShellEnvVar`, `strcat` and `sprintf`.  
+`simplifyFilename` is the right function to expand shell variables in paths.  
+It works like Unix `realpath` (or `readlink -f`).
+
+```scheme
+;; Return the path of the SKILL interpreter utility
+(simplifyFilename "$CDS_INST_DIR/tools.lnx86/dfII/bin/skill")
+```
+
+
+### Geometry
+
+When working on geometrical functions, use `complex` numbers.
+They easily solve most problems regarding angles.
+
+| Function  | Description                                                       |
+|-----------|-------------------------------------------------------------------|
+| `complex` | Build a complex number, usually from x:y coordinates.             |
+| `real`    | Return the real part of a complex number (its x coordinate).      |
+| `imag`    | Return the imaginary part of a complex number (its y coordinate). |
+| `abs`     | Return the modulus of a complex number.                           |
+| `phase`   | Retunr the phase (or angle) of a complex number.                  |
+
+Here is a simple example of a function to round the corners of a rectangle:
+
+```scheme
+(defun round_rectangle ( rect radius points "dnx" )
+  "Round each corners of RECT using RADIUS and a number of POINTS."
+  (assert (eq "rect" rect->objType) "round_rectangle - first argument should be a rectangle")
+  (letseq ( ( pi      (acos -1)              )
+            ( step    (pi/2.0)/(sub1 points) )
+            ( new_pts ()                     )
+            )
+    (destructuringBind ( ( x0 y0 ) ( x1 y1 ) ) rect->bBox
+      ;; Make sure that radius fits in rectangle
+      (assert radius <= (x1-x0)/2.0 "round-rectangle - radius %N > half width %N"  radius (x1-x0)/2.)
+      (assert radius <= (y1-y0)/2.0 "round-rectangle - radius %N > half height %N" radius (y1-y0)/2.)
+      ;; Browse each corner
+      ;; Each corner is represented by center of the circle used for rounding and the start angle
+      (foreach tuple (list
+                       (list (complex x1-radius y1-radius) 0      ) ; top-right
+                       (list (complex x0+radius y1-radius) pi/2   ) ; top-left
+                       (list (complex x0+radius y0+radius) pi     ) ; bottom-left
+                       (list (complex x1-radius y0+radius) pi+pi/2) ; bottom-right
+                       )
+        (destructuringBind ( z angle ) tuple
+          (for _ 1 points
+            ;; Use complex exponential representation
+            (push z+radius*(exp (complex 0 angle)) new_pts)
+            (setq angle angle+step)
+            ))
+        ))
+    ;; Transform rectangle using calculated points
+    (dbConvertRectToPolygon rect)
+    (setf rect->points (foreach mapcar z new_pts (real z):(imag z)))
+    ))
+    
+;; The previous function is just an example, it is [almost] always better to use native functions
+(defun round_rectangle ( rect radius points "dnx" )
+  "Round each corners of RECT using RADIUS and a number of POINTS."
+  (leModifyCorner rect '(t t t t) nil radius (sub1 points))
+  )
+```
+
+
+## Tricky errors that confuse beginners
+
+
+### `sort` is destructive
+
+Be careful when using `sort`, it one of the very few destructive functiosn available in SKILL.  
+It is a tricky one because its desctructive behavior is implicit.  
+The output might be what you expect, but the input list is often messed up in the process...
+
+> [!CAUTION]
+>
+> ```scheme
+> ;; The following code is not sorting the list but destructs it instead
+> (let ( ( dummy_list '( 12 27 42 3 2 1 101 ))
+>        )
+>   (sort dummy_list 'lessp)
+>   (println dummy_list)
+>   )
+> ```
+
+There are several solutions depending on the use-case:
+
+1. You actually want to modify the sorted list.
+   ```scheme
+   (setq dummy_list (sort dummy_list 'lessp))
+   ```
+   
+1. You use the sorted list but need to keep the original intact.
+   ```scheme
+   (println (sort (copy dummy_list) 'lessp))
+   ```
+   
+1. You are sorting a list which is generated on-the-fly, then you don't care about destroying it.
+   ```scheme
+   (println (sort (setof num dummy_list (evenp num)) 'lessp))
+   ```
+
+
+### `quote` or `'` returns a fixed pointer
+
+If you return a symbol or a list constructed using `'`, the value is actually an object at a fixed address in memory.  
+Here is an example to show how this can mess up your code:
+
+
+> [!CAUTION]
+> ```scheme
+> ;; The following function seems perfectly valid and harmless
+> (defun new_dpl ()
+>   "Build an empty disembodied property list [DPL] and return it."
+>   '( nil )
+>   )
+>
+> ;; Let's use it to create a DPL and set its properties
+> (let ( ( dpl (new_dpl) )
+>        )
+>   (setf dpl->a 12)
+>   (setf dpl->b 27)
+>
+>   ;; This will print (nil b 27 a 12) as expected
+>   (println dpl)
+>   )
+>
+> ;; However the behavior of our function seems broken
+> (println (new_dpl))
+> ; > (nil b 27 a 12)
+> ;; The return value is not an empty DPL anymore!
+>
+> ;; What happened is that when evaluating '( nil ) the SKIL interpreter built a list
+> ;; and stored its pointer directly inside the function
+> 
+> ;; You can confirm this behavior with the following statement
+> ;; (You will see the updated DPL directly inside the function code)
+> (pp new_dpl)
+> ```
+
+> [!TIP]
+>
+> Instead of constructing list using `'`, prefer using `list`.  
+> This will reconstruct the list everytime the function is called and avoid unwillingly caching values.
+>
+> ```scheme
+> ;; This is a much safer and valid approach
+> (defun new_dpl ()
+>   "Build an empty disembodied property list [DPL] and return it."
+>   (list nil)
+>   )
+>
+> ;; Everytime `new_dpl` is called, it will construct a new list containing nil and return nil
+> ;; This will avoid unwanted behaviors
+> 
+> ;; You can check it with the following statement
+> (equal (new_dpl) (new_dpl))
+> ; > t
+> (eq (new_dpl) (new_dpl))
+> ; > nil
+> ```
+> `eq` returns nil, this means that even if objects have the same value (as stated by `equal`), they are different.  
+> The previous implementation using `'( nil )` instead of `(list nil)` will return t for both `equal` and `eq`.
+
+
+### `nil` as a symbol
+
+The SKILL Language user guide states that:
+> Both nil and t always evaluate to themselves and must never be used as the name of a variable.  
+> -- [Cadence SKILL Language User Guide IC25.1 - Atoms](https://support.cadence.com/apex/techpubDocViewerPage?xmlName=sklanguser.xml&title=Cadence%20SKILL%20Language%20User%20Guide%20--%20Language%20Characteristics%20-%20Atoms&hash=pgfId-1008778&c_version=IC25.1&path=sklanguser/sklanguserIC25.1/chap2.html#pgfId-1008778)
+
+I fully agree that they must never be used as the name of a variable.  
+But the first part stating that nil always evaluate to itself is not completely true...
+
+This is very unlikely, but you can obtain `nil` as a symbol.  
+This can lead to unexpected behavior:
+```scheme
+(let ( ( nil_var (concat "nil") )
+       )
+  (println nil_var)
+  ; > nil
+  (eq nil_var nil)
+  ; > nil
+  (equal nil_var nil)
+  ; > nil
+  )
+```
+
+As stated before, this should not happen in regular code.  
+But you might encounter issues due to this if you read a string from a user input and use `concat` on it.
+
+
+### `rexMagic` is a vey nasty switch
+
+If you want to mess with a Virtuoso session, you can type:
+```scheme
+(rexMagic nil)
+```
+
+This will break things like `rexMatchp`, `rexReplace` which is expected.  
+But it will also subtly break unexpected functions like `pcreSubstitute` or `simplifyFilename`.
+
+> [!WARNING]
+>
+> ```scheme
+> (defun split_email ( email )
+>   "Split EMAIL string into first name, last name and website.
+> Return nil when EMAIL cannot be parsed properly."
+>   (when (pcreMatchp "([^.@]+)\\.?(.*?)@(.+)" email)
+>     (mapcar 'pcreSubstitute '( "\\1" "\\2" "\\3" ))
+>     ))
+>     
+> (rexMagic t)
+> (println (split_email "first_name.last_name@example.com"))
+> ; > ("first_name" "last_name" "example.com")
+> 
+> (rexMagic nil)
+> (println (split_email "first_name.last_name@example.com"))
+> ; > ("\\1" "\\2" "\\3")
+> ```
+
+> [!TIP]
+> 
+> You should always set `rexMagic` when using one of the functions mentioned above.  
+> Here is a clean way to do so:
+> ```scheme
+> (defun split_email ( email )
+>   "Split EMAIL string into first name, last name and website.
+> Return nil when EMAIL cannot be parsed properly."
+>   ;; Properly set and re-set `rexMagic`
+>   (let ( ( magic (rexMagic) )
+>          )
+>     (unwindProtect
+>       (progn
+>         (rexMagic t)
+>         (when (pcreMatchp "([^.@]+)\\.?(.*?)@(.+)" email)
+>           (mapcar 'pcreSubstitute '( "\\1" "\\2" "\\3" ))
+>           ))
+>       (rexMagic magic)
+>       ))
+>   )
+> ```
+
