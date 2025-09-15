@@ -488,6 +488,7 @@ Shape your data so it can only ends in a few different baskets.
     ))
 ```
 
+
 ### Construct Graphical User Interfaces [GUIs] with layout forms
 
 > [!WARNING]
@@ -594,7 +595,8 @@ Formatting functions behave like Unix `printf` utility:
 It is possible to padd printed values using a minimum number of characters to the right or left.  
 It is also possible to specify the number of decimals when printing a floating-point number.
 
-
+Read [Cadence SKILL Language Reference IC23.1 - `fprintf`](https://support.cadence.com/apex/techpubDocViewerPage?xmlName=sklangref.xml&title=Cadence%20SKILL%20Language%20Reference%20--%20fprintf%20-%20fprintf&hash=pgfId-1039036&c_version=IC23.1&path=sklangref/sklangrefIC23.1/inputoutput_re_fprintf.html#pgfId-1039036)
+its documentation is well detailled.
 
 > [!TIP]
 >
