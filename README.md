@@ -1098,10 +1098,8 @@ Those mappings can be used within foreach thanks to the following *unfamiliar* s
 > [!TIP]
 > 
 > `foreach` can take multiple variables as first argument.
-> It allows to browse several lists in parallel.
-> > [!WARNING]
-> > 
-> > All the lists should have the same length.
+> It allows to browse several lists in parallel.  
+> <font color=orange>**WARNING:** All the lists should have the same length.</font>
 >
 > This is especially useful to browse a list of elements two by two:
 > 
