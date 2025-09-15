@@ -43,7 +43,7 @@ When debugging or discovering new code, it is very disturbing not being able to 
 
 > [!CAUTION]
 >
-> Here is a bad SKILL example of "smart" (or dynamic) definitions.
+> Here is a bad SKILL example of *smart* (or dynamic) definitions.
 > ```scheme
 > ;; Define predicates to check if objects are simple geometric shapes.
 > (foreach obj_type '( rect polygon ellipse )
@@ -745,7 +745,7 @@ They are following [Perl Compatible Regular Expressions \[PCRE\]](https://www.pc
 
 `alphalessp` is limited when comparing strings with numbers.
 This is not the case of its lesser known cousin `alphaNumCmp`
-which compares numbers inside strings in a "natural" way:
+which compares numbers inside strings in a *natural* way:
 
 ```scheme
 (let ( ( file_names '( "video_0.mp4"
@@ -1009,4 +1009,125 @@ But it will also subtly break unexpected functions like `pcreSubstitute` or `sim
 >       ))
 >   )
 > ```
+
+
+# Advanced SKILL & SKILL++
+
+
+## Advanced mapping functions
+
+Mapping functions are very useful, you probably use `mapc` often without realising it.
+
+```scheme
+(foreach elt '( 1 2 3 ) (println elt))
+;; is completely equivalent to
+(mapc (lambda (elt) (println elt)) '( 1 2 3 ))
+```
+
+But `mapc` is only one of six useful statements.  
+To better understand them, let's define the following function:
+
+```scheme
+(defun print_and_return_twice (object)
+  "Print OBJECT value and return it twice in a list."
+  (println object)
+  (list object object)
+  )
+```
+
+We can now try the following six mapping functions:
+```scheme
+(mapc    'print_and_return_twice '( 1 2 3 ))
+(mapcar  'print_and_return_twice '( 1 2 3 ))
+(mapcan  'print_and_return_twice '( 1 2 3 ))
+(map     'print_and_return_twice '( 1 2 3 ))
+(maplist 'print_and_return_twice '( 1 2 3 ))
+(mapcon  'print_and_return_twice '( 1 2 3 ))
+```
+
+We get the following results:
+
+| Function  | Printed values    | Returned values     | Description                                 |
+|-----------|-------------------|---------------------|---------------------------------------------|
+| `mapc`    | 1 2 3             | (1 2 3)             | Browse elements, return input               |
+| `mapcar`  | 1 2 3             | ((1 1) (2 2) (3 3)) | Browse elements, return output              |
+| `mapcan`  | 1 2 3             | (1 1 2 2 3 3)       | Browse elements, return concatenated output |
+| `map`     | (1 2 3) (2 3) (3) | (1 2 3)             | Browse sublists, return input               |
+| `maplist` | (1 2 3) (2 3) (3) | ((1 1) (2 2) (3 3)) | Browse sublists, return output              |
+| `mapcon`  | (1 2 3) (2 3) (3) | (1 1 2 2 3 3)       | Browse sublists, return concatenated output |
+
+It can be summarized in the following table:
+
+| Browse \ Return | Input  | Output    | Concatenated Output |
+|-----------------|--------|-----------|---------------------|
+| Elements        | `mapc` | `mapcar`  | `mapcan`            |
+| Sublists        | `map`  | `maplist` | `mapcon`            |
+
+Those mappings can be used within foreach thanks to the following *unfamiliar* syntax:
+```scheme
+(foreach <mapping_function> <var> <list> <body>...)
+```
+
+> [!TIP]
+>
+> `foreach mapcar` is the more intuitive function.  
+> It is very useful to get the results of a loop in a list.
+> ```scheme
+> (defun table_elements ( table "o" )
+>   "Return the list of elements contained inside TABLE."
+>   (foreach mapcar key table[?] table[key])
+>   )
+> ```
+
+> [!TIP]
+> 
+> `foreach mapcan` is also very useful.  
+> You can use it to filter elements like `setof` but return values different from the browsed elements.
+>
+> ```scheme
+> (defun even_values ( table )
+>   "Return all the even values contained in TABLE."
+>   (foreach mapcan key table[?]
+>     (let ( ( val table[key] )
+>            )
+>        (when (evenp val)
+>          (list val)
+>          ))))
+> ```
+
+> [!TIP]
+> 
+> `foreach` can take multiple variables as first argument.
+> It allows to browse several lists in parallel.
+> > [!WARNING]
+> > 
+> > All the lists should have the same length.
+>
+> This is especially useful to browse a list of elements two by two:
+> 
+> ```scheme
+> (let ( ( polygon (car (exists shape (geGetEditCellView)->shapes)) )
+>        )
+>   ;; Print polygon edges
+>   (foreach ( pt0 pt1 ) polygon->points (cdr polygon->points)
+>     (printf "%N %N\n" pt0 pt1)
+>     ))
+> ```
+> 
+> This can also be done using `foreach map`.
+> 
+> ```scheme
+> (let ( ( polygon (car (exists shape (geGetEditCellView)->shapes)) )
+>        )
+>   ;; Print polygon edges
+>   (foreach map pts polygon->points
+>     (let ( ( pt0 (car  pts) )
+>            ( pt1 (cadr pts) )
+>            )
+>       (when pt1
+>         (printf "%N %N\n" pt0 pt1)
+>         ))
+>     ))
+> ```
+
 
