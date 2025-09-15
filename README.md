@@ -591,3 +591,131 @@ Or even better, use `destructuringBind`.
 >   )
 > ```
 
+> [!NOTE]
+>
+> Lisp is meant to manipulate lists using functions.
+> `destructuringBind` is simply a macro that defines local functions and apply them to a list.
+> ```scheme
+> (destructuringBind ( a b @key c @rest _ ) mylist
+>   ...
+>   )
+> ;; is completely equivalent to
+> (apply (lambda ( a b @key c @rest _ ) ...) mylist)
+> ```
+
+
+### Using predicates with lists
+
+The following functions are very useful to apply a predicate to list elements:
+
+| Function | Description                                                    |
+|----------|----------------------------------------------------------------|
+| `setof`  | Return elements that pass the predicate.                       |
+| `exists` | Return first sublist whose first element passes the predicate. |
+| `forall` | Return t if all elements pass the predicate, nil otherwise.    | 
+
+```scheme
+;; Get all rectangle shapes from cellview
+(setof shape (geGetEditCellView)->shapes (equal "rect" shape->objType))
+
+;; Check if cellview contain an ellipse
+(when (exists shape (geGetEditCellView)->shapes (equal "ellipse" shape->objType))
+  (warn "Cellview contains an ellipse"))
+
+;; Check if all shapes are polygons
+(when (forall shape (geGetEditCellView)->shapes (equal "polygon" shape->objType))
+  (warn "All shapes are polygons"))
+```
+
+
+### Setting anything
+
+"setters" and "getters" are very common. 
+They are functions to access and manage properties.
+However their syntax can be confusing, for instance:
+```scheme
+;; Set property 'a to 12 in a DPL
+(let ( ( dpl (list nil) )
+     )
+  ;; `putprop` arguments order is : object, value, key
+  (putprop dpl 12 'a)
+  (get dpl 'a)
+  )
+  
+;; Set property 'a to 12 in an instance
+(defclass dummy () ( ( a ) ))
+(let ( ( obj (makeInstance 'dummy) )
+       )
+  ;; `setSlotValue` arguments order is : object, key, value...
+  (setSlotValue obj 'a 12)
+  (slotValue obj 'a)
+  )
+```
+
+This is where `setf` comes in handy.  
+If we know how to access a property, it should be equally simple to set it.  
+`setf` is a macro meant for that, it abstracts setter syntax.
+
+Let's update the previous example:
+```scheme
+;; Set property 'a to 12 in a DPL
+(let ( ( dpl (list nil) )
+     )
+  (setf (get dpl 'a) 12)
+  (get dpl 'a)
+  )
+  
+;; Set property 'a to 12 in an instance
+(defclass dummy () ( ( a ) ))
+(let ( ( obj (makeInstance 'dummy) )
+       )
+  ;; `setSlotValue` arguments order is : object, key, value...
+  (setf (slotValue obj 'a) 12)
+  (slotValue obj 'a)
+  )
+```
+
+It is simpler, easier to remember and more consistent!
+
+> [!NOTE]
+>
+> `setf` works with almost every getter:
+> `get`, `getShellEnvVar`, `status`, `car`, `nth`, ...
+>
+> And in the few cases where it does not work, it is always possible to define it.
+> ```scheme
+> ;; `(setf (envGetVal ...) ...)` seems to be missing, let's define it
+> (defun setf_envGetVal ( value tool name type )
+>   "`setf` helper for `envGetVal`."
+>   (envSetVal tool name type value)
+>   )
+>
+> ;; Now we can use the following syntax to set the number of input lines in the CIW
+> (setf (envGetVal "ui" "ciwCmdInputLines" 'int) 10)
+> ```
+
+
+### Layout form functions
+
+To fully exploit User Interfaces creation in SKILL, you should have a look at the following functions:
+- `hiCreateFormLayout`
+- `hiCreateLayoutForm`
+- `hiCreateVerticalBoxLayout`
+- `hiCreateHorizontalBoxLayout`
+- `hiCreate...Field` (All field creation functions)
+
+You can also create interactive Library, Cell, View fields using:
+- `ddHiCreateLibraryComboField`
+- `ddHiCreateCellComboField`
+- `ddHiCreateViewComboField`
+- `ddHiLinkFields`
+
+You can create a layer selection field using:
+- `leCreateLayerField`
+
+`hiSetFieldMinSize` can be useful to align several fields or headers.  
+It can also be used to reset the height of a layer field created with `leCreateLayerField` which appears bigger than other fields by default.
+
+> [!TIP]
+>
+> You can use `(hiDisplayForm custom_form -1:-1)` to display a form under the mouse.
