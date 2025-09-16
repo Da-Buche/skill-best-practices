@@ -626,6 +626,37 @@ its documentation is well detailled.
   )
 ```
 
+### `instring` and `outstring`
+
+Sometimes you need to imitate ports.
+For instance, if you want to redirect `poport` and get everything that is printed to it as a string.
+
+A solution would be to create a temporary file. Open it as an `outfile` port and read it afterwards...  
+There is a much cleaner solution:
+
+```scheme
+(let ( ( out_port (outstring) )
+       ( _poport  poport      )
+       str )
+  (unwindProtect
+    (progn
+      (setq poport out_port)
+      (info "This is a dummy info message!\n")
+      (setq str (getOutstring out_port))
+      )
+    (progn 
+      (setq poport _poport)
+      (close out_port)
+      )
+    )
+  ;; Print message catched in string
+  (println str)
+  )
+```
+
+`instring` follows the opposite behavior, it takes a string as argument and will
+emulate an `infile` port whose text is the content of the string.
+
 
 ### List splitting
 
@@ -1324,8 +1355,204 @@ Return nil when EMAIL cannot be parsed properly."
     ))
 ```
 
+
 ### Use `expandMacro' and `expandMacroDeep' to test your macros
 
 When writing macros, or testing some code, `expandMacro` and `expandMacroDeep` are
 very useful to understand what is going on under the hood.
+
+
+## Use `tconc` structures
+
+Lisp is meant to manipulate lists. It is fine in most cases.
+But sometimes you need to add elements at the tail of the list instead of the head.
+
+```scheme
+(defun enum ( n "x" )
+  "Return the list of integers between 0 and N-1 (included)."
+  (assert (plusp n) "enum - n should be a positive integer: %N" n)
+  (let ( ( res (tconc nil nil) )
+         )
+    (for i 0 (sub1 n)
+      (tconc res i)
+      )
+    ;; This is required to convert `tconc` structure into the list of concatenated numbers
+    (cdar res)
+    ))
+```
+
+
+## Use SKILL++
+
+SKILL++ is actually safer and simpler to use than SKILL.  
+Although the opposite is not true (because SKILL++ offers more capabilities than SKILL),  
+most SKILL scripts are valid in SKILL++.
+
+The only cases were SKILL scripts are not valid in SKILL++ are the ones using global variables.
+
+To use SKILL++, you can use the statement `inScheme`.
+Or simply rename your files with `.ils` or `.scm` prefix.
+
+
+### Functions
+
+In SKILL++, functions are `atoms` (like strings, symbols, integers, ...).
+They can be assigned to variables and behave like other objects.
+
+> [!NOTE]
+>
+> In SKILL, functions have a dedicated namespace.  
+> You can have a function called `var` but also a variable named `var` and both will live in parallel.
+>
+> In Scheme, there is only one namespace for both, this is less prone to errors as one symbol can only contain one value.
+
+This implies that functions can be local, this is actually the default behavior.
+You can use `putd`, `defglobalfun` or `globalProc` to define global functions.
+
+```scheme
+(let ()
+
+  ;; This function is local, it cannot be accessed outside the parent `let`
+  (defun factorial_rec ( n acc )
+    "Tail-recursive helper for `factorial`"
+    (if (plusp n)
+      (factorial_rec n-1 (times n acc))
+      acc))
+      
+  ;; This function is global, it can be used everywhere
+  (defglobalfun factorial ( n "x" )
+    "Return N factorial (N!)."
+    (let ( ( tail_call_opt (status optimizeTailCall) )
+           )
+      (sstatus optimizeTailCall t)
+      (unwindProtect
+        (factorial_rec n 1)
+        (sstatus optimizeTailCall tail_call_opt)
+        )
+      ))
+
+  )
+```
+
+
+
+### Scoping
+
+The main difference between SKILL & SKILL++ is the scoping.
+
+SKILL scoping is dynamic, it means variable are evaluated in the current environment.
+
+```scheme
+;; This is SKILL
+(inSkill
+  (let ( ( custom_var 12 )
+         )
+    (defglobalfun get_custom_var ()
+      "Return then value of custom_var."
+      custom_var
+      )
+    )
+  
+  (let ( ( custom_var 27 )
+         )
+    (println (get_custom_var))
+    ; > 27
+    )
+    
+  (errset (println (get_custom_var)) t)
+  ; ERROR> unbound variable - custom_var
+  )
+```
+
+SKILL++ scoping is lexical, variables are evaluated in the environment they were defined in.
+
+```scheme
+;; This is SKILL++
+(inScheme
+  (let ( ( custom_var 12 )
+         )
+    (defglobalfun get_custom_var ()
+      "Return then value of custom_var."
+      custom_var
+      )
+    )
+  
+  (let ( ( custom_var 27 )
+         )
+    (println (get_custom_var))
+    ; > 12
+    )
+    
+  (errset (println (get_custom_var)) t)
+  ; > 12
+  )
+```
+
+SKILL++ is more reliable, the things you define are not context-dependent.
+
+
+## Closures
+
+In SKILL++, you can write closures.
+I.e. functions in a restricted lexical environment (see [scoping](#scoping) above).
+
+It is possible to hide functions and variables that are only shared within a restricted environment:
+
+```scheme
+(inScheme
+  (let ( ( counter 0 )
+         )
+  
+    (defglobalfun get_counter ()
+      "Return hidden counter."
+      counter
+      )
+      
+    (defglobalfun increment_counter ( @optional ( step 1 ) "n" )
+      "Increment hidden counter by STEP."
+      (setq counter (plus counter step))
+      )
+      
+    (defglobalfun decrement_counter ( @optional ( step 1 ) "n" )
+      "Decrement hidden counter by STEP."
+      (setq counter (difference counter step))
+      )
+
+  ))
+```
+
+
+## Sequential definitions of arguments
+
+In SKILL++ arguments are defined one by one like `letseq` would do.
+
+This means that argument default values can depend on the previous arguments.
+
+```scheme
+;; Dummy example of function which can be used either by providing
+;; ?source_cv or ?source_lib ?source_cell and ?source_view
+(defun copy_cellview
+  ( @key
+    ( source_cv   (geGetEditCellView) )
+    ( source_lib  source_cv->libName  )
+    ( source_cell source_cv->cellName )
+    ( source_view source_cv->viewName )
+    ( target_lib  target_cv->libName  )
+    ( target_cell target_cv->cellName )
+    ( target_view target_cv->viewName )
+    @rest _ )
+  "Copy SOURCE_LIB/SOURCE_CELL/SOURCE_VIEW to TARGET_LIB/TARGET_CELL/TARGET_VIEW."
+  (assert (or (nequal source_lib  target_lib )
+              (nequal source_cell target_cell)
+              (nequal source_view target_view)
+              )
+    "Source and target are identical: %N/%N/%N" source_lib source_cell source_view)
+  (let ( ( cv (dbOpenCellViewByType source_lib source_cell source_view) )
+         )
+    (unwindProtect
+      (dbCopyCellView cv target_lib target_cell target_view)
+      (dbClose cv)
+      )
+    ))
+```
 
