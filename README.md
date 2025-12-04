@@ -1314,6 +1314,70 @@ and `_commaAt` (or `,@`) to evaluate certain parts.
 
 `_backquote` ``` ` ``` is very useful to [Define macros](#define-macros).
 
+## Define autoload functions
+
+Instead of finding each file containing each function, you can simply define a function to load all the files instead.
+It is not always the right solution, for a simple project explicit autoloads are often safer and more explicit.
+But it can be a nice alternative to keep in mind:
+
+```Scheme
+;; Usually people do something like this in files they load fron the .cdsinit
+function0.autoload = (simplifyFilename "$SKILL_PROJECT_ROOT/skill/file0.il")
+function1.autoload = (simplifyFilename "$SKILL_PROJECT_ROOT/skill/file1.il")
+function2.autoload = (simplifyFilename "$SKILL_PROJECT_ROOT/skill/file2.il")
+function3.autoload = (simplifyFilename "$SKILL_PROJECT_ROOT/skill/file3.il")
+
+;; It is also possible to do something like this:
+
+(defun skill_project_autoload ()
+  "Load all project files."
+  (foreach file '( "file0.il" "file1.il" "file2.il" "file3.il" )
+    (load (simplifyFilename (lsprintf "$SKILL_PROJECT_ROOT/skill/%s" file)))
+    )
+  ;; A function used as autoload must return a string
+  "")
+
+function0.autoload = skill_project_autoload
+function1.autoload = skill_project_autoload
+function2.autoload = skill_project_autoload
+function3.autoload = skill_project_autoload
+
+;; From experience, what I do now is to separate files whose loading order matters from the ones that can be batch loaded.
+
+(inScheme
+(let ()
+
+  (defun get_skill_files ( path "t" )
+    "Return all the skill files contained in PATH."
+    (let ( ( port (outString)) )
+      (unwindProtect
+        (let ( ( pid (ipcBeginProcess (lsprintf "find '%s' -name '*.il' -o -name '*.ils' -o -name '*.scm'" path) ""
+                       (lambda ( _pid data ) (fprintf port "%s" data))
+                       ) )
+               )
+          (ipcWait pid)
+          (parseString (getOutstring port) "\n")
+          )
+        (close port)
+        )))
+
+  (defun autoload ()
+    "Load all project files."
+    ;; Load files with important order
+    (foreach file '( "macro.il" "variables.il" )
+      (load (simplifyFilename (lsprintf "$SKILL_PROJECT_ROOT/skill/%s" file)))
+      )
+    ;; Batch load the rest
+    (mapc 'load (get_skill_files "$SKILL_PROJECT_ROOT/skill/autoloaded"))
+    ;; A function used as autoload must return a string
+    "")
+
+  function0.autoload = autoload
+  function1.autoload = autoload
+  function2.autoload = autoload
+  function3.autoload = autoload
+  ));scheme closure
+```
 
 ## Define macros
 
@@ -1520,6 +1584,42 @@ It is possible to hide functions and variables that are only shared within a res
 
   ))
 ```
+
+> [!NOTE]
+>
+> ```scheme
+> ;; Closures allow you to explicit variables that are defined at load time.
+> ;; For instance, in SKILL to use the current file in a function body, you can use the following syntax:
+>
+> (defun skill_project_autoload ()
+>   "Load all files in 'autoloaded' directory placed in the parent folder of the current file."
+>   ;; #.<sexp> is replaced by <sexp> evaluation at load time. (This syntax will confuse most people!)
+>   (let ( ( parent_dir ( (simplifyFilename (strcat #.(get_filename piport) "/..") ) ) )
+>          )
+>     (foreach file (cddr (getDirFiles parent_dir)) (when (pcreMatchp "\\.(ils?|scm)$" file) (load file)))
+>     ))
+>
+> function0.autoload = skill_project_autoload
+> ...
+>
+> ;; In SKILL++, the syntax is more intuitive:
+> (inScheme
+> ;; Here current_file will also be defined at load time, but this is expected.
+> (let ( ( current_file (get_filename piport) )
+>        )
+>
+>   (defun skill_project_autoload ()
+>     "Load all files in 'autoloaded' directory placed in the parent folder of the current file."
+>     (let ( ( parent_dir ( (simplifyFilename (strcat current_file "/..") ) ) )
+>            )
+>       (foreach file (cddr (getDirFiles parent_dir)) (when (pcreMatchp "\\.(ils?|scm)$" file) (load file)))
+>       ))
+>
+>   function0.autoload = skill_project_autoload
+>   ...
+>
+>   ))
+> ```
 
 
 ## Sequential definitions of arguments
