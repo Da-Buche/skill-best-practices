@@ -1156,6 +1156,41 @@ Regarding all other errors, reading the following article is strongly advised:
 
 Any CAD engineer supporting Virtuoso should be familiar with it.
 
+#### Locate function definition
+
+You can try `(whereIs <function>)` to check if a function is built-in or custom.
+It should even give you the source file of the function (if loaded in debug mode). 
+
+Here is a solution to find the source of functions which works most of the time : 
+
+1. Do your usual project setup but stop just before starting virtuoso.
+2. Instead of running Virtuoso as usual, run `virtuoso -nocdsinit`
+
+> [!TIP]
+>
+> If you are usually running a wrapper provided by your CAD, the following should do (before running the wrapper) :  
+> - csh: `alias virtuoso \virtuoso -nocdsinit \!*`  
+> - bash: `virtuoso() { virtuoso -nocdsinit $* ;}`  
+> - otherwise, you can always create `<any_dir>/bin/virtuoso` as a wrapper which will run the second virtuoso executable available from path and add `<any_dir>/bin/virtuoso` to the beginning of $PATH.
+
+3. Once your Virtuoso without customization is running, paste the following in the CIW :
+   ```scheme
+   (sstatus debugMode t)
+   (sstatus keepSrcInfo t)
+   ;; The following should work out-of-the-box
+   ;; Otherwise, replace `ddGetStartup` call by the hardcoded .cdsinit path
+   (load (ddGetStartup ".cdsinit")) 
+   ```
+4. Once this is done, this SKILL command should give you the source file : `(whereIs <function>)`
+
+> This might not work in all cases, for instance if loading the `.cdsinit` changes the `sstatus` switches.  
+> (This is sometimes done by CAD teams.)
+
+If the function is built-in, you can check where it is referenced in SKILL contexts :
+```bash
+strings -f $CDSHOME/tools/dfII/etc/context/64bit/*.cxt | grep -i <functionName>
+```
+
 
 # Advanced SKILL & SKILL++
 
