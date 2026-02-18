@@ -927,7 +927,7 @@ They easily solve most problems regarding angles.
 | `real`    | Return the real part of a complex number (its x coordinate).      |
 | `imag`    | Return the imaginary part of a complex number (its y coordinate). |
 | `abs`     | Return the modulus of a complex number.                           |
-| `phase`   | Retunr the phase (or angle) of a complex number.                  |
+| `phase`   | Return the phase (or angle) of a complex number.                  |
 
 Here is a simple example of a function to round the corners of a rectangle:
 
@@ -984,7 +984,7 @@ The output might be what you expect, but the input list is often messed up in th
 >
 > ```scheme
 > ;; The following code is not sorting the list but destructs it instead
-> (let ( ( dummy_list '( 12 27 42 3 2 1 101 ))
+> (let ( ( dummy_list '( 12 27 42 3 2 1 101 ) )
 >        )
 >   (sort dummy_list 'lessp)
 >   (println dummy_list)
