@@ -1149,6 +1149,57 @@ But it will also subtly break unexpected functions like `pcreSubstitute` or `sim
 >   )
 > ```
 
+### `arrayref` inside `cond`
+
+If arrayref, written in C-style (`table[key]`) is used as the only element of a `cond` statement, it will behave unexpectedly.
+This is uncommon but can happen, let's have a look at the following code:
+
+```scheme
+(let ( ( table (makeTable t nil) )
+       )
+  (cond
+    ( table[12] )
+    ( table[27] )
+    ( t (error "This case is not supported, table[12] or table[27] should be defined."))
+    ))
+```
+
+When evaluated the previous code is expected to raise the following error:
+"This case is not supported, table[12] or table[27] should be defined."
+
+However, in Scheme it returns 12 and in SKILL it raises an error: "unbound variable - arrayref". But why!?
+
+Well, the C-style syntax `table[12]` is equivalent to `(arrayref table 12)`.
+So the Lisp equivalent of the previous snippet is:
+
+```scheme
+(let ( ( table (makeTable t nil) )
+       )
+  (cond
+    ( arrayref table 12 )
+    ( arrayref table 27 )
+    ( t (error "This case is not supported, table[12] or table[27] should be defined."))
+    ))
+```
+
+- In SKILL, `arrayref` is most-likely not defined as a global variable (not as a function).
+- In Scheme, it is always non-nil as `arrayref` will return its associated function.
+  It will then evaluate `table` then `12` and return the latter.
+
+To fix this, either place brackets around the `arrayref` call or add another expression afterwards:
+
+```scheme
+(let ( ( table (makeTable t nil) )
+       )
+  (cond
+    ;; With brackets around, there is no issue
+    ( (table[12]) )
+    ;; Same with another expression behind
+    ( table[27] t )
+    ( t (error "This case is not supported, table[12] or table[27] should be defined."))
+    ))
+```
+
 ### Debugging Advice
 
 Regarding all other errors, reading the following article is strongly advised:  
